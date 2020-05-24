@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import co.com.domicilio.corrientazo.enums.InstructionSet;
 import co.com.domicilio.corrientazo.exceptions.InvalidRouteDescription;
+import co.com.domicilio.corrientazo.factories.NumbericPropertiesFactory;
 import co.com.domicilio.corrientazo.models.DeliveryStatus;
 import co.com.domicilio.corrientazo.models.DronOrdersConfiguration;
 import co.com.domicilio.corrientazo.models.Location;
@@ -31,8 +32,8 @@ public class TextFileDeliveryProcessor implements DeliveryProcessor {
 	private boolean maxNumberDeliveryExceed;
 
 	public TextFileDeliveryProcessor() {
-		maxNumberRoutes = 20;
-		maxNumberDeliveries = 3;
+		maxNumberRoutes = NumbericPropertiesFactory.getPropertieValue("dron.max");
+		maxNumberDeliveries = NumbericPropertiesFactory.getPropertieValue("dron.max.delivery");
 	}
 
 	public boolean isMaxNumberRouteExceed() {

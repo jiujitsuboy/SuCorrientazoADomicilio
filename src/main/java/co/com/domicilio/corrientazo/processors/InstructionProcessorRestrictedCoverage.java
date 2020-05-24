@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import co.com.domicilio.corrientazo.enums.InstructionSet;
+import co.com.domicilio.corrientazo.factories.NumbericPropertiesFactory;
 import co.com.domicilio.corrientazo.models.Location;
 
 /**
@@ -15,10 +16,10 @@ import co.com.domicilio.corrientazo.models.Location;
  */
 public final class InstructionProcessorRestrictedCoverage implements InstructionProcessor {
 
-	private int deliverMaxNumberBlocks = 10;
+	private int deliverMaxNumberBlocks;
 
 	public InstructionProcessorRestrictedCoverage() {
-		
+		deliverMaxNumberBlocks = NumbericPropertiesFactory.getPropertieValue("dron.max.blocks");
 	}
 
 	/**

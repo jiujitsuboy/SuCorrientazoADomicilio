@@ -7,9 +7,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import co.com.domicilio.corrientazo.config.AbstractConfigTest;
 import co.com.domicilio.corrientazo.models.DronOrdersConfiguration;
 
-public abstract class DeliveryProcessorTest  {
+public abstract class DeliveryProcessorTest extends AbstractConfigTest {
 
 	protected abstract DeliveryProcessor createDeliveryProcessor();
 

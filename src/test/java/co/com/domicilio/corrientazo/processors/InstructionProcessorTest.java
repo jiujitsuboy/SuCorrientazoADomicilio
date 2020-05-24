@@ -8,12 +8,13 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import co.com.domicilio.corrientazo.config.AbstractConfigTest;
 import co.com.domicilio.corrientazo.enums.CardinalPoint;
 import co.com.domicilio.corrientazo.enums.InstructionSet;
 import co.com.domicilio.corrientazo.models.Location;
 import co.com.domicilio.corrientazo.processors.InstructionProcessor;
 
-public abstract class InstructionProcessorTest {
+public abstract class InstructionProcessorTest extends AbstractConfigTest {
 
 	private List<InstructionSet[]> instructionSets;
 

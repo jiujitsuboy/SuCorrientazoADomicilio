@@ -10,13 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import co.com.domicilio.corrientazo.config.AbstractConfigTest;
 import co.com.domicilio.corrientazo.enums.InstructionSet;
 import co.com.domicilio.corrientazo.models.Dron;
 import co.com.domicilio.corrientazo.models.DronOrdersConfiguration;
 import co.com.domicilio.corrientazo.processors.InstructionProcessor;
 
 @ExtendWith(MockitoExtension.class)
-public class DronFactoryTest {
+public class DronFactoryTest extends AbstractConfigTest {
 	
 	private DronFactory droFactory;
 	@Mock

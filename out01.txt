@@ -1,0 +1,3 @@
+(0,11) NORTH direction (OUT OF COVERAGE)
+(-3,3) NORTH direction
+(6,6) NORTH direction
