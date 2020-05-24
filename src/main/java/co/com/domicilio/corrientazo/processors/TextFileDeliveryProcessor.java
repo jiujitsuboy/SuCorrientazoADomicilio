@@ -17,6 +17,12 @@ import co.com.domicilio.corrientazo.models.DeliveryStatus;
 import co.com.domicilio.corrientazo.models.DronOrdersConfiguration;
 import co.com.domicilio.corrientazo.models.Location;
 
+/**
+ * Read delivery instructions from files in the working directory and generate one report file per delivery
+ *  
+ * @author jose.nino
+ *
+ */
 public class TextFileDeliveryProcessor implements DeliveryProcessor {
 
 	private static final Logger LOGGER = Logger.getLogger(TextFileDeliveryProcessor.class.getName());
@@ -44,6 +50,9 @@ public class TextFileDeliveryProcessor implements DeliveryProcessor {
 		return maxNumberDeliveryExceed;
 	}
 
+	/**
+	 * Pull from files the {@link DronOrdersConfiguration}
+	 */
 	@Override
 	public List<DronOrdersConfiguration> readDeliveries() {
 
@@ -108,6 +117,9 @@ public class TextFileDeliveryProcessor implements DeliveryProcessor {
 		return routesDelivery;
 	}
 
+	/**
+	 * Write to working directory as many delivery status report it has in {@link List<DeliveryStatus>}
+	 */
 	@Override
 	public void generateDeliveriesReport(List<DeliveryStatus> deliveriesStatus) {
 
