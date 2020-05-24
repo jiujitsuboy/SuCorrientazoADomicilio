@@ -124,7 +124,7 @@ public class Location {
 	public String toString() {
 		String text = null;
 		if (outOfCoverage) {
-			text = String.format("(%d,%d) %s dirección (FUERA DE CONVERTURA)", coordenateX, coordenateY, cardinalPoint);
+			text = String.format("(%d,%d) %s dirección (FUERA DE COBERTURA)", coordenateX, coordenateY, cardinalPoint);
 		} else {
 			text = String.format("(%d,%d) %s dirección", coordenateX, coordenateY, cardinalPoint);
 		}
