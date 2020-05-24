@@ -13,6 +13,12 @@ import co.com.domicilio.corrientazo.models.Dron;
 import co.com.domicilio.corrientazo.models.DronOrdersConfiguration;
 import co.com.domicilio.corrientazo.processors.DeliveryProcessor;
 
+/**
+ * Orchestrator of the delivery process. Using a {@link DeliveryProcessor}, gather the delivery orders configurations
+ * and setup the set of {@link Dron} to process those orders.
+ * @author jose.nino
+ *
+ */
 public class DeliveryManager {
 
 	private static final Logger LOGGER = Logger.getLogger(DeliveryManager.class.getName());
@@ -24,6 +30,10 @@ public class DeliveryManager {
 		this.deliveryFactory = deliveryFactory;
 	}
 
+	/**
+	 * Acquired the configuration for the deliveries, create the necessary {@link Dron} according to the amount of {@link DronOrdersConfiguration}
+	 * found, and dispatch the {@link Dron} 
+	 */
 	public void scheduleDeliveries() {
 
 		List<DeliveryStatus> deliveryStatus = null;
@@ -53,6 +63,11 @@ public class DeliveryManager {
 
 	}
 
+	/**
+	 * Process the delivery instruction per the set of {@link Dron} in asynchronous way
+	 * @param dronsDeliverOrders A list of {@link CompletableFuture<DeliveryStatus>} representing the peding work of each {@link Dron} 
+	 * @return {@link List<DeliveryStatus>} result of every delivery
+	 */
 	private List<DeliveryStatus> processDeliveries(List<CompletableFuture<DeliveryStatus>> dronsDeliverOrders) {
 
 		List<DeliveryStatus> deliveryStatus = null;
