@@ -38,7 +38,7 @@ public abstract class InstructionProcessorTest extends AbstractConfigTest {
 		InstructionProcessor instructionProcessor = createIntructionProcessor();
 		List<Location> locations = instructionProcessor.processOrdersIntructions(instructionSets);
 		for (Location location : locations) {
-			assertEquals(location.getCardinalPoint(), CardinalPoint.NORTH);
+			assertEquals(location.getCardinalPoint(), CardinalPoint.NORTE);
 		}
 	}
 

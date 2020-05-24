@@ -74,19 +74,20 @@ public class TextFileDeliveryProcessor implements DeliveryProcessor {
 					String line = null;
 
 					while ((line = br.readLine()) != null) {
-
+						nroDeliveriesFound++;
 						hasContent = true;
+
+						if (nroDeliveriesFound > maxNumberDeliveries) {
+							maxNumberDeliveryExceed = true;
+							LOGGER.warning(String.format("Max number[%d] of delivery exceeded on file %s", maxNumberDeliveries,routeInfo.getName()));
+							break;
+						}
+
 						try {
 							deliveries.add(parseRoute(line));
 						} catch (InvalidRouteDescription ex) {
 							LOGGER.warning(String.format("Error parsing route configuration [%s]:  %s", routeInfo,
 									ex.getMessage()));
-						}
-
-						if (nroDeliveriesFound > maxNumberDeliveries) {
-							maxNumberDeliveryExceed = true;
-							LOGGER.warning(String.format("Max number[%d] of delivery exceeded", maxNumberDeliveries));
-							break;
 						}
 					}
 				} catch (IOException ex) {

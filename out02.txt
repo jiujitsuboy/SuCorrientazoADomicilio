@@ -1,1 +1,3 @@
-(2,2) NORTH direction
+(2,2) NORTE dirección
+(3,2) SUR dirección
+(0,5) ORIENTE dirección

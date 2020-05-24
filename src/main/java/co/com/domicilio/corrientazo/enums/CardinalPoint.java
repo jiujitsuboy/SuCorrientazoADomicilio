@@ -7,5 +7,5 @@ package co.com.domicilio.corrientazo.enums;
  *
  */
 public enum CardinalPoint {
-	NORTH, SOUTH, EAST, WEST
+	NORTE,SUR,ORIENTE,OCCIDENTE
 }

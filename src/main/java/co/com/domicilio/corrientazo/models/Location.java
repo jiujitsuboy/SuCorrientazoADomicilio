@@ -17,7 +17,7 @@ public class Location {
 	public Location() {
 		coordenateX = 0;
 		coordenateY = 0;
-		cardinalPoint = CardinalPoint.NORTH;
+		cardinalPoint = CardinalPoint.NORTE;
 	}
 
 	public Location(int coordenateX, int coordenateY, CardinalPoint cardinalPoint) {
@@ -63,16 +63,16 @@ public class Location {
 	 */
 	public void advanceOneBlock() {
 		switch (cardinalPoint) {
-		case NORTH:
+		case NORTE:
 			coordenateY++;
 			break;
-		case SOUTH:
+		case SUR:
 			coordenateY--;
 			break;
-		case EAST:
+		case ORIENTE:
 			coordenateX++;
 			break;
-		case WEST:
+		case OCCIDENTE:
 			coordenateX--;
 			break;
 		}
@@ -86,17 +86,17 @@ public class Location {
 		if (instruction == InstructionSet.D) {
 
 			switch (cardinalPoint) {
-			case NORTH:
-				cardinalPoint = CardinalPoint.EAST;
+			case NORTE:
+				cardinalPoint = CardinalPoint.ORIENTE;
 				break;
-			case SOUTH:
-				cardinalPoint = CardinalPoint.WEST;
+			case SUR:
+				cardinalPoint = CardinalPoint.OCCIDENTE;
 				break;
-			case EAST:
-				cardinalPoint = CardinalPoint.SOUTH;
+			case ORIENTE:
+				cardinalPoint = CardinalPoint.SUR;
 				break;
-			case WEST:
-				cardinalPoint = CardinalPoint.NORTH;
+			case OCCIDENTE:
+				cardinalPoint = CardinalPoint.NORTE;
 				break;
 			}
 
@@ -104,17 +104,17 @@ public class Location {
 
 		else if (instruction == InstructionSet.I) {
 			switch (cardinalPoint) {
-			case NORTH:
-				cardinalPoint = CardinalPoint.WEST;
+			case NORTE:
+				cardinalPoint = CardinalPoint.OCCIDENTE;
 				break;
-			case SOUTH:
-				cardinalPoint = CardinalPoint.EAST;
+			case SUR:
+				cardinalPoint = CardinalPoint.ORIENTE;
 				break;
-			case EAST:
-				cardinalPoint = CardinalPoint.NORTH;
+			case ORIENTE:
+				cardinalPoint = CardinalPoint.NORTE;
 				break;
-			case WEST:
-				cardinalPoint = CardinalPoint.SOUTH;
+			case OCCIDENTE:
+				cardinalPoint = CardinalPoint.SUR;
 				break;
 			}
 		}
@@ -124,9 +124,9 @@ public class Location {
 	public String toString() {
 		String text = null;
 		if (outOfCoverage) {
-			text = String.format("(%d,%d) %s direction (OUT OF COVERAGE)", coordenateX, coordenateY, cardinalPoint);
+			text = String.format("(%d,%d) %s dirección (FUERA DE CONVERTURA)", coordenateX, coordenateY, cardinalPoint);
 		} else {
-			text = String.format("(%d,%d) %s direction", coordenateX, coordenateY, cardinalPoint);
+			text = String.format("(%d,%d) %s dirección", coordenateX, coordenateY, cardinalPoint);
 		}
 		return text;
 	}
