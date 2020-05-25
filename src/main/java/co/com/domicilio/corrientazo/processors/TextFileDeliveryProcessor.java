@@ -1,43 +1,44 @@
 package co.com.domicilio.corrientazo.processors;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import co.com.domicilio.corrientazo.processors.textfile.util.HandleFilesFromDirectory;
 import co.com.domicilio.corrientazo.enums.InstructionSet;
 import co.com.domicilio.corrientazo.exceptions.InvalidRouteDescription;
 import co.com.domicilio.corrientazo.factories.NumbericPropertiesFactory;
 import co.com.domicilio.corrientazo.models.DeliveryStatus;
 import co.com.domicilio.corrientazo.models.DronOrdersConfiguration;
 import co.com.domicilio.corrientazo.models.Location;
+import co.com.domicilio.corrientazo.parsers.ParseTextInstruction;
 
 /**
- * Read delivery instructions from files in the working directory and generate one report file per delivery
- *  
+ * Read delivery instructions from files in the working directory and generate
+ * one report file per delivery
+ * 
  * @author jose.nino
  *
  */
 public class TextFileDeliveryProcessor implements DeliveryProcessor {
 
 	private static final Logger LOGGER = Logger.getLogger(TextFileDeliveryProcessor.class.getName());
-	private final String FILE_FILTER_NAME = "^in\\d+\\.txt$";
 	private final int FILE_NAME_PREFIX_LENGTH = 2;
-	private final String VALID_TOKENS_SET = "^[AID]+$";
-	private final String ROUTE_PARSER_ERROR_MSG = "Invalid set of intructions found. Valid set is [A,I,D]";
 
 	private Integer maxNumberRoutes;
 	private Integer maxNumberDeliveries;
 
 	private boolean maxNumberRouteExceed;
 	private boolean maxNumberDeliveryExceed;
+	private HandleFilesFromDirectory handleFilesFromDirectory;
+	private ParseTextInstruction parseTextInstruction;
 
-	public TextFileDeliveryProcessor() {
+	public TextFileDeliveryProcessor(HandleFilesFromDirectory handleFilesFromDirectory,
+			ParseTextInstruction parseTextInstruction) {
+		this.handleFilesFromDirectory = handleFilesFromDirectory;
+		this.parseTextInstruction = parseTextInstruction;
+
 		maxNumberRoutes = NumbericPropertiesFactory.getPropertieValue("dron.max");
 		maxNumberDeliveries = NumbericPropertiesFactory.getPropertieValue("dron.max.delivery");
 	}
@@ -58,126 +59,102 @@ public class TextFileDeliveryProcessor implements DeliveryProcessor {
 
 		List<DronOrdersConfiguration> routesDelivery = new ArrayList<DronOrdersConfiguration>();
 
-		File currentFolder = new File(System.getProperty("user.dir"));
+		File[] routesInfo = handleFilesFromDirectory.readFiles();
 
-		if (currentFolder.isDirectory()) {
-			File[] routesInfo = currentFolder.listFiles((folder, file) -> file.matches(FILE_FILTER_NAME));
+		int nroRoutesFound = 0;
 
-			int nroRoutesFound = 0;
+		for (File routeInfo : routesInfo) {
 
-			for (File routeInfo : routesInfo) {
+			nroRoutesFound++;
 
-				nroRoutesFound++;
+			if (isMaxNumberRoutesExceed(nroRoutesFound)) {
+				break;
+			}
 
-				if (nroRoutesFound > maxNumberRoutes) {
-					maxNumberRouteExceed = true;
-					LOGGER.warning(String.format("Max number[%d] of routes exceeded", maxNumberRoutes));
+			List<InstructionSet[]> deliveries = new ArrayList<InstructionSet[]>(maxNumberDeliveries);
+
+			String[] lines = handleFilesFromDirectory.readFileContent(routeInfo.getAbsolutePath());
+
+			for (int nroDeliveries = 0; nroDeliveries < lines.length; nroDeliveries++) {
+
+				if (isMaxNumberDeliveriesExceed(nroDeliveries + 1, routeInfo.getName())) {
 					break;
 				}
-				boolean hasContent = false;
-				int nroDeliveriesFound = 0;
 
-				List<InstructionSet[]> deliveries = new ArrayList<InstructionSet[]>(maxNumberDeliveries);
-
-				try (BufferedReader br = new BufferedReader(new FileReader(routeInfo))) {
-					String line = null;
-
-					while ((line = br.readLine()) != null) {
-						nroDeliveriesFound++;
-						hasContent = true;
-
-						if (nroDeliveriesFound > maxNumberDeliveries) {
-							maxNumberDeliveryExceed = true;
-							LOGGER.warning(String.format("Max number[%d] of delivery exceeded on file %s", maxNumberDeliveries,routeInfo.getName()));
-							break;
-						}
-
-						try {
-							deliveries.add(parseRoute(line));
-						} catch (InvalidRouteDescription ex) {
-							LOGGER.warning(String.format("Error parsing route configuration [%s]:  %s", routeInfo,
-									ex.getMessage()));
-						}
-					}
-				} catch (IOException ex) {
-					LOGGER.severe(
-							String.format("Error reading route configuration [%s]: %s", routeInfo, ex.getMessage()));
-				}
-				if (!hasContent) {
-					LOGGER.warning(String.format("Not content in route file [%s] ", routeInfo));
-				} else {
-					String deliveryId = routeInfo.getName().substring(FILE_NAME_PREFIX_LENGTH,
-							routeInfo.getName().indexOf("."));
-
-					routesDelivery.add(new DronOrdersConfiguration(deliveryId, deliveries));
+				try {
+					deliveries.add(parseTextInstruction.parse(lines[nroDeliveries]));
+				} catch (InvalidRouteDescription ex) {
+					LOGGER.warning(
+							String.format("Error parsing route configuration [%s]:  %s", routeInfo, ex.getMessage()));
 				}
 			}
 
+			if (deliveries.size() == 0) {
+				LOGGER.warning(String.format("Not content in route file [%s] ", routeInfo));
+			} else {
+				String deliveryId = routeInfo.getName().substring(FILE_NAME_PREFIX_LENGTH,
+						routeInfo.getName().indexOf("."));
+
+				routesDelivery.add(new DronOrdersConfiguration(deliveryId, deliveries));
+			}
 		}
+
 		return routesDelivery;
 	}
 
 	/**
-	 * Write to working directory as many delivery status report it has in {@link List<DeliveryStatus>}
+	 * Write to working directory as many delivery status report it has in
+	 * {@link List<DeliveryStatus>}
 	 */
 	@Override
 	public void generateDeliveriesReport(List<DeliveryStatus> deliveriesStatus) {
 
-		File currentFolder = new File(System.getProperty("user.dir"));
-
 		for (DeliveryStatus deliveryStatus : deliveriesStatus) {
 
-			String fileName = String.format("%s%sout%s.txt", currentFolder.getAbsolutePath(), File.separator,
-					deliveryStatus.getId());
+			List<Location> locations = deliveryStatus.getLocation();
 
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
-				for (Location location : deliveryStatus.getLocation()) {
-					bw.write(location.toString());
-					bw.newLine();
-				}
-				bw.flush();
-			} catch (IOException ex) {
-				LOGGER.severe(String.format("Error writing delivery status for dealer [%d]: %s", deliveryStatus.getId(),
-						ex.getMessage()));
+			String[] lines = new String[locations.size()];
+
+			for (int index = 0; index < locations.size(); index++) {
+				lines[index] = locations.get(index).toString();
+
 			}
+
+			handleFilesFromDirectory.writeFile(deliveryStatus.getId(), lines);
+
 		}
 	}
 
 	/**
-	 * From an String, parse it and generate a valid instruction set
-	 * {@link InstructionSet}
+	 * Validate if the number of deliveries per Route is not exceed
 	 * 
-	 * @param route String which represent a instruction set to parse
-	 * @return {@link InstructionSet[]}
-	 * @throws InvalidRouteDescription
+	 * @param nroDeliveriesFound current number of deliveries obtain from the route
+	 * @param fileName           file from the deliveries was obtained
+	 * @return <code>boolean</code>
 	 */
-	private InstructionSet[] parseRoute(String route) throws InvalidRouteDescription {
+	private boolean isMaxNumberDeliveriesExceed(int nroDeliveriesFound, String fileName) {
 
-		InstructionSet[] instructionSet = null;
-
-		if (!route.matches(VALID_TOKENS_SET)) {
-			throw new InvalidRouteDescription(ROUTE_PARSER_ERROR_MSG);
+		if (nroDeliveriesFound > maxNumberDeliveries) {
+			maxNumberDeliveryExceed = true;
+			LOGGER.warning(
+					String.format("Max number[%d] of delivery exceeded on file %s", maxNumberDeliveries, fileName));
 		}
 
-		instructionSet = new InstructionSet[route.length()];
-		String upperRoute = route.toUpperCase();
-
-		for (int index = 0; index < upperRoute.length(); index++) {
-
-			switch (upperRoute.charAt(index)) {
-			case 'A':
-				instructionSet[index] = InstructionSet.A;
-				break;
-			case 'I':
-				instructionSet[index] = InstructionSet.I;
-				break;
-			case 'D':
-				instructionSet[index] = InstructionSet.D;
-				break;
-			}
-		}
-
-		return instructionSet;
+		return maxNumberDeliveryExceed;
 	}
 
+	/**
+	 * Validate if the number of routes found in the folder is not exceed
+	 * 
+	 * @param nroRoutesFound current number of routes found in the folder
+	 * @return <code>boolean</code>
+	 */
+	private boolean isMaxNumberRoutesExceed(int nroRoutesFound) {
+		if (nroRoutesFound > maxNumberRoutes) {
+			maxNumberRouteExceed = true;
+			LOGGER.warning(String.format("Max number[%d] of routes exceeded", maxNumberRoutes));
+		}
+
+		return maxNumberRouteExceed;
+	}
 }

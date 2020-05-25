@@ -1,3 +1,3 @@
-(0,11) NORTE dirección (FUERA DE CONVERTURA)
+(0,11) NORTE dirección (FUERA DE COBERTURA)
 (-3,3) NORTE dirección
 (6,6) NORTE dirección
